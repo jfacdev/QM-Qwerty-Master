@@ -1,0 +1,11 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=QwertyMaster
+Comment=Master the Qwerty layout with classic stories
+Exec=python3 /home/juan/dvorakMaster/qwertymaster.py
+Icon=/home/juan/dvorakMaster/static/qm_icon.png
+Terminal=false
+Categories=Education;Development;
+StartupNotify=true
+Keywords=typing;qwerty;master;
