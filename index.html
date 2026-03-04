@@ -30,12 +30,45 @@
     <div class="app-container">
         <header>
             <h1 style="color: #10b981;">QwertyMaster</h1>
-            <p style="color: #94a3b8;">Master the Qwerty layout with classic stories</p>
+            <div id="mode-selector" style="margin-bottom: 1rem;">
+                <label style="color: #94a3b8; font-size: 0.9rem; margin-right: 0.5rem;">AI Competition:</label>
+                <select id="ai-mode-select"
+                    style="background: #1e293b; color: #e2e8f0; border: 1px solid #334155; padding: 0.2rem 0.5rem; border-radius: 4px; outline: none;">
+                    <option value="Solo">Solo</option>
+                    <option value="Easy">Easy</option>
+                    <option value="Normal">Normal</option>
+                    <option value="Hard">Hard</option>
+                </select>
+            </div>
+            <p style="color: #94a3b8;">Master the Qwerty layout with Project Gutenberg stories</p>
         </header>
 
         <main id="game-container">
             <div id="loading" class="hidden">
                 <div class="spinner"></div>
+            </div>
+
+            <div id="competition-bars" style="width: 100%; margin-bottom: 1rem;">
+                <div class="progress-container" style="margin-bottom: 0.5rem;">
+                    <div
+                        style="display: flex; justify-content: space-between; font-size: 0.8rem; color: #94a3b8; margin-bottom: 2px;">
+                        <span>AI Progress</span>
+                    </div>
+                    <div style="height: 6px; background: #334155; border-radius: 3px; overflow: hidden;">
+                        <div id="ai-progress-bar"
+                            style="width: 0%; height: 100%; background: #ef4444; transition: width 0.1s;"></div>
+                    </div>
+                </div>
+                <div class="progress-container">
+                    <div
+                        style="display: flex; justify-content: space-between; font-size: 0.8rem; color: #94a3b8; margin-bottom: 2px;">
+                        <span>Your Progress</span>
+                    </div>
+                    <div style="height: 6px; background: #334155; border-radius: 3px; overflow: hidden;">
+                        <div id="player-progress-bar"
+                            style="width: 0%; height: 100%; background: #10b981; transition: width 0.1s;"></div>
+                    </div>
+                </div>
             </div>
 
             <div id="stats-bar">

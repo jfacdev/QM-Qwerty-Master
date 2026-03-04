@@ -11,6 +11,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const finalAccuracyEl = document.getElementById('final-accuracy');
     const restartBtn = document.getElementById('restart-btn');
     const loadingEl = document.getElementById('loading');
+    const aiModeSelect = document.getElementById('ai-mode-select');
+    const aiProgressBar = document.getElementById('ai-progress-bar');
+    const playerProgressBar = document.getElementById('player-progress-bar');
+    const modalTitle = modalOverlay.querySelector('h2');
 
     let currentText = "";
     let startTime = null;
@@ -18,6 +22,10 @@ document.addEventListener('DOMContentLoaded', () => {
     let streak = 0;
     let maxStreak = 0;
     let isFinished = false;
+    let aiProgress = 0;
+    let aiRunning = false;
+    let aiInterval = null;
+    let aiFinished = false;
 
     // Initialize Keyboard
     function renderKeyboard() {
@@ -87,6 +95,13 @@ document.addEventListener('DOMContentLoaded', () => {
         modalOverlay.classList.add('hidden');
         loadingEl.classList.remove('hidden');
 
+        // Reset AI
+        aiProgress = 0;
+        aiRunning = false;
+        aiFinished = false;
+        clearInterval(aiInterval);
+        updateProgressBars();
+
         // Static Pages Strategy: Use local stories
         setTimeout(() => {
             currentText = STORIES[Math.floor(Math.random() * STORIES.length)];
@@ -141,9 +156,63 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function finishGame() {
         isFinished = true;
+        aiRunning = false;
+        clearInterval(aiInterval);
+
         finalWpmEl.textContent = wpmEl.textContent;
         finalAccuracyEl.textContent = accuracyEl.textContent;
+
+        const mode = aiModeSelect.value;
+        if (mode !== 'Solo') {
+            if (aiFinished && hiddenInput.value.length < currentText.length) {
+                modalTitle.textContent = "AI Won! Keep practicing.";
+                modalTitle.style.color = "#ef4444";
+            } else if (!aiFinished && hiddenInput.value.length >= currentText.length) {
+                modalTitle.textContent = "Victory! You beat the AI.";
+                modalTitle.style.color = "#10b981";
+            } else {
+                modalTitle.textContent = "It's a tie!";
+                modalTitle.style.color = "#ffffff";
+            }
+        } else {
+            modalTitle.textContent = "Session Complete!";
+            modalTitle.style.color = "#ffffff";
+        }
+
         modalOverlay.classList.remove('hidden');
+    }
+
+    function updateProgressBars() {
+        if (!currentText) return;
+        const playerRatio = (hiddenInput.value.length / currentText.length) * 100;
+        playerProgressBar.style.width = `${playerRatio}%`;
+
+        const aiRatio = (aiProgress / currentText.length) * 100;
+        aiProgressBar.style.width = `${aiRatio}%`;
+    }
+
+    function startAI() {
+        const mode = aiModeSelect.value;
+        if (mode === 'Solo') return;
+
+        const speeds = { 'Easy': 25, 'Normal': 50, 'Hard': 85 };
+        const wpm = speeds[mode] || 50;
+        const charsPerSec = (wpm * 5) / 60;
+
+        aiRunning = true;
+        aiInterval = setInterval(() => {
+            if (isFinished) {
+                clearInterval(aiInterval);
+                return;
+            }
+            aiProgress++;
+            updateProgressBars();
+            if (aiProgress >= currentText.length) {
+                aiFinished = true;
+                clearInterval(aiInterval);
+                finishGame();
+            }
+        }, 1000 / charsPerSec);
     }
 
     // Event Listeners
@@ -152,7 +221,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const val = hiddenInput.value;
 
-        if (!startTime) startTime = Date.now();
+        if (!startTime) {
+            startTime = Date.now();
+            startAI();
+        }
 
         // Check latest char
         if (val.length > 0) {
@@ -171,6 +243,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         renderText();
         updateStats();
+        updateProgressBars();
 
         // Highlight next key
         if (val.length < currentText.length) {
@@ -194,6 +267,8 @@ document.addEventListener('DOMContentLoaded', () => {
     typingArea.addEventListener('click', () => {
         hiddenInput.focus();
     });
+
+    aiModeSelect.addEventListener('change', loadGame);
 
     restartBtn.addEventListener('click', loadGame);
 
